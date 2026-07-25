@@ -1,3 +1,15 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using static Lox.NET.Lox;
 
-Console.WriteLine("Hello, World!");
+switch (args.Length)
+{
+    case > 1:
+        Console.WriteLine("Usage: lox [script]");
+        Environment.Exit(64);
+        break;
+    case 1:
+        await RunFileAsync(args[0]);
+        break;
+    default:
+        await RunPromptAsync();
+        break;
+}
