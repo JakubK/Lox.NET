@@ -4,4 +4,7 @@
 
 namespace Lox.NET.Expression;
 
-public interface IExpression {}
+public interface IExpression
+{
+	public T Accept<T>(IVisitor<T> visitor);
+}

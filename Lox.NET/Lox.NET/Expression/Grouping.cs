@@ -6,5 +6,6 @@ namespace Lox.NET.Expression;
 
 public class Grouping(IExpression expression) : IExpression
 {
-	T Accept<T>(IVisitor<T> visitor) => visitor.VisitGrouping(this);
+	public IExpression Expression => expression;
+	public T Accept<T>(IVisitor<T> visitor) => visitor.VisitGrouping(this);
 }

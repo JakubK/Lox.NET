@@ -6,5 +6,7 @@ namespace Lox.NET.Expression;
 
 public class Unary(Token op, IExpression right) : IExpression
 {
-	T Accept<T>(IVisitor<T> visitor) => visitor.VisitUnary(this);
+	public Token Op => op;
+	public IExpression Right => right;
+	public T Accept<T>(IVisitor<T> visitor) => visitor.VisitUnary(this);
 }

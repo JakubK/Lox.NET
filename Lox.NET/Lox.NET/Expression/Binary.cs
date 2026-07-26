@@ -6,5 +6,8 @@ namespace Lox.NET.Expression;
 
 public class Binary(IExpression left, Token op, IExpression right) : IExpression
 {
-	T Accept<T>(IVisitor<T> visitor) => visitor.VisitBinary(this);
+	public IExpression Left => left;
+	public Token Op => op;
+	public IExpression Right => right;
+	public T Accept<T>(IVisitor<T> visitor) => visitor.VisitBinary(this);
 }
