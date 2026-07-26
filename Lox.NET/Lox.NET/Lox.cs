@@ -2,7 +2,7 @@ namespace Lox.NET;
 
 public static class Lox
 {
-    private static bool _hadError = false;
+    private static bool _hadError;
 
     public static async Task RunFileAsync(string path)
     {
@@ -46,5 +46,4 @@ public static class Lox
     {
         Console.Error.WriteLine($"[line {line} Error {where}: {message}");
     }
-
 }

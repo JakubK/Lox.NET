@@ -1,3 +1,4 @@
 <Solution>
+  <Project Path="Lox.Generator/Lox.Generator.csproj" />
   <Project Path="Lox.NET/Lox.NET.csproj" />
 </Solution>

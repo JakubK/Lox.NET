@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace Lox.NET;
 
 public class Scanner(string source)
@@ -66,6 +68,21 @@ public class Scanner(string source)
                         Advance();
                     }
                 }
+                else if (Match('*'))
+                {
+                    // A comment goes until the end of the file or matching */
+                    while (!(Peek() == '*' && PeekNext() == '/') && !IsAtEnd)
+                    {
+                        Advance();
+                    }
+
+                    if (!IsAtEnd)
+                    {
+                        // Jump through the */
+                        Advance();
+                        Advance();
+                    }
+                }
                 else
                 {
                     AddToken(TokenType.Slash);
@@ -128,7 +145,7 @@ public class Scanner(string source)
             while (IsDigit(Peek())) Advance();
         }
         
-        AddToken(TokenType.Number, double.Parse(Utils.Substring(source, _start, _current)));
+        AddToken(TokenType.Number, double.Parse(Utils.Substring(source, _start, _current), CultureInfo.InvariantCulture));
     }
 
     private char PeekNext()
