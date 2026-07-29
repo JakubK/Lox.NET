@@ -1,22 +1,32 @@
 using System.Diagnostics;
 using Lox.NET.Exceptions;
 using Lox.NET.Expression;
+using Lox.NET.Statement;
 
 namespace Lox.NET;
 
-public class Interpreter : IVisitor<object>
+public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object>
 {
-    public void Interpret(IExpression expression)
+    private readonly VariableEnvironment _environment = new();
+    
+    public void Interpret(IEnumerable<IStatement> statements)
     {
         try
         {
-            var val = Evaluate(expression);
-            Console.WriteLine(Stringify(val));
+            foreach (var statement in statements)
+            {
+                Execute(statement);
+            }
         }
         catch (LoxRuntimeException ex)
         {
             Lox.RuntimeError(ex);
         }
+    }
+
+    private void Execute(IStatement statement)
+    {
+        statement.Accept(this);
     }
 
     private string? Stringify(object? val)
@@ -135,6 +145,11 @@ public class Interpreter : IVisitor<object>
         }
     }
 
+    public object? VisitVariable(Variable expression)
+    {
+        return _environment.Get(expression.Name);
+    }
+
     public object VisitTernary(Ternary expression)
     {
         var condition = Evaluate(expression.Condition);
@@ -169,9 +184,9 @@ public class Interpreter : IVisitor<object>
 
     private object HandlePlusBinary(Binary binary, object left, object right)
     {
-        if (left is double && right is double)
+        if (left is double dLeft && right is double dRight)
         {
-            return (double)left + (double)right;
+            return dLeft + dRight;
         }
         
         if (left is string || right is string)
@@ -194,5 +209,25 @@ public class Interpreter : IVisitor<object>
         if (left is null) return false;
 
         return left.Equals(right);
+    }
+
+    public object VisitStatement(Statement.Statement statement)
+    {
+        Evaluate(statement.Expr);
+        return null;
+    }
+
+    public object VisitPrint(Print statement)
+    {
+        var val = Evaluate(statement.Expr);
+        Console.WriteLine(Stringify(val));
+        return null;
+    }
+
+    public object VisitVar(Var expression)
+    {
+        var value = expression.Initializer != null ? Evaluate(expression.Initializer) : null;
+        _environment.Define(expression.Name.Lexeme, value);
+        return null;
     }
 }

@@ -1,5 +1,7 @@
+using System.Diagnostics;
 using Lox.NET.Exceptions;
 using Lox.NET.Expression;
+using Lox.NET.Statement;
 
 namespace Lox.NET;
 
@@ -11,16 +13,69 @@ public class Parser(List<Token> tokens)
     private Token Peek => tokens[_current];
     private Token Previous => tokens[_current - 1];
 
-    public IExpression? Parse()
+    public List<IStatement> Parse()
     {
+        var result = new List<IStatement>();
+
+        while (!IsAtEnd)
+        {
+            result.Add(Declaration());
+        }
+
+        return result;
+    }
+
+    private IStatement Declaration()
+    {
+        // declaration -> VariableDeclaration | Statement
         try
         {
-            return Expression();
+            if (Match(TokenType.Var))
+                return VariableDeclaration();
+            return Statement();
         }
-        catch (ParseException error)
+        catch (ParseException ex)
         {
+            Synchronize();
             return null;
         }
+        
+        return null;
+    }
+
+    private IStatement VariableDeclaration()
+    {
+        // VariableDeclaration -> "var" IDENTIFIER ("=" expression)? ";"
+        var name = Consume(TokenType.Identifier, "Expect variable name");
+        var initializer = Match(TokenType.Equal) ? Expression() : null;
+        Consume(TokenType.Semicolon, "Expect ';' after variable declaration");
+        
+        return new Var(name, initializer);
+    }
+
+    private IStatement Statement()
+    {
+        // statement -> "print" printStatement | expressionStatement
+        if (Match(TokenType.Print))
+            return PrintStatement();
+
+        return ExpressionStatement();
+    }
+
+    private IStatement ExpressionStatement()
+    {
+        // expressionStatement -> expression
+        var expr = Expression();
+        Consume(TokenType.Semicolon, "Expect ';' after expression");
+        return new Statement.Statement(expr);
+    }
+
+    private IStatement PrintStatement()
+    {
+        // printStatement -> expression
+        var val = Expression();
+        Consume(TokenType.Semicolon, "Expect ';' after value");
+        return new Print(val);
     }
 
     private IExpression Expression()
@@ -79,6 +134,7 @@ public class Parser(List<Token> tokens)
 
     private IExpression Comparison()
     {
+        // term ( ( ">" | ">=" | "<" | "<=" ) term )*
         var expr = Term();
 
         while (Match(TokenType.Greater, TokenType.GreaterEqual, TokenType.Less, TokenType.LessEqual))
@@ -93,6 +149,8 @@ public class Parser(List<Token> tokens)
 
     private IExpression Term()
     {
+        // factor ( ( "-" | "+" ) factor )*
+        
         var expr = Factor();
 
         while (Match(TokenType.Minus, TokenType.Plus))
@@ -107,6 +165,8 @@ public class Parser(List<Token> tokens)
 
     private IExpression Factor()
     {
+        // unary ( ( "/" | "*" ) unary )*
+        
         var expr = Unary();
         while (Match(TokenType.Slash, TokenType.Star))
         {
@@ -120,6 +180,8 @@ public class Parser(List<Token> tokens)
 
     private IExpression Unary()
     {
+        // ( ( "!" | "-" ) unary ) | primary
+        
         if (Match(TokenType.Bang, TokenType.Minus))
         {
             var op = Previous;
@@ -132,15 +194,22 @@ public class Parser(List<Token> tokens)
 
     private IExpression Primary()
     {
-        if (Match(TokenType.False)) return new Literal(false);
-        if (Match(TokenType.True)) return new Literal(true);
-        if (Match(TokenType.Nil)) return new Literal(null);
-
+        // NUMBER | STRING | LITERAL | "true" | "false" | "nil" | "(" expression ")"
+        
         if (Match(TokenType.Number, TokenType.String))
         {
             return new Literal(Previous.Literal);
         }
 
+        if (Match(TokenType.Identifier))
+        {
+            return new Variable(Previous);
+        }
+        
+        if (Match(TokenType.False)) return new Literal(false);
+        if (Match(TokenType.True)) return new Literal(true);
+        if (Match(TokenType.Nil)) return new Literal(null);
+        
         if (Match(TokenType.LeftParen))
         {
             var expr = Expression(); // expression between ( and ). Start parser from the beginning

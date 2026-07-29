@@ -39,11 +39,11 @@ public static class Lox
         var tokens = scanner.ScanTokens();
 
         var parser = new Parser(tokens);
-        var expression = parser.Parse();
+        var statements = parser.Parse();
         
         if (_hadError) return;
 
-        interpreter.Interpret(expression);
+        interpreter.Interpret(statements);
         
         //Console.WriteLine(new AstPrinter().Print(expression));
     }

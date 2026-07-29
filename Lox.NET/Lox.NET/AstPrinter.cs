@@ -3,13 +3,8 @@ using Lox.NET.Expression;
 
 namespace Lox.NET;
 
-public class AstPrinter : IVisitor<string>
+public class AstPrinter : IExpressionVisitor<string>
 {
-    public string Print(IExpression expression)
-    {
-        return expression.Accept(this);
-    }
-    
     public string VisitBinary(Binary expression)
     {
         return Parenthesize(expression.Op.Lexeme, expression.Left, expression.Right);
@@ -29,6 +24,11 @@ public class AstPrinter : IVisitor<string>
     public string VisitUnary(Unary expression)
     {
         return Parenthesize(expression.Op.Lexeme, expression.Right);
+    }
+
+    public string VisitVariable(Variable expression)
+    {
+        throw new NotImplementedException();
     }
 
     public string VisitTernary(Ternary expression)
