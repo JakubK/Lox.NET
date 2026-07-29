@@ -9,6 +9,7 @@ public interface IStatementVisitor<T>
 {
 	T VisitStatement(Statement expression);
 	T VisitBlock(Block expression);
+	T VisitIf(If expression);
 	T VisitPrint(Print expression);
 	T VisitVar(Var expression);
 

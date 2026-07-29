@@ -72,13 +72,27 @@ public class Parser(List<Token> tokens)
 
     private IStatement Statement()
     {
-        // statement -> "print" printStatement | expressionStatement | block
+        // statement -> ifStatement | printStatement | expressionStatement | block
+        if (Match(TokenType.If))
+            return IfStatement();
         if (Match(TokenType.Print))
             return PrintStatement();
         if (Match(TokenType.LeftBrace))
             return new Block(Block());
 
         return ExpressionStatement();
+    }
+
+    private IStatement IfStatement()
+    {
+        Consume(TokenType.LeftParen, "Expect '(' after 'if'");
+        var condition = Expression();
+        Consume(TokenType.RightParen, "Expect ')' after 'if'");
+
+        var thenBranch = Statement();
+        var elseBranch = Match(TokenType.Else) ? Statement() : null;
+
+        return new If(condition, thenBranch, elseBranch);
     }
 
     private List<IStatement> Block()
@@ -117,9 +131,9 @@ public class Parser(List<Token> tokens)
 
     private IExpression Assignment()
     {
-        // assignment -> comma ('=' assignment)?
+        // assignment -> or ('=' assignment)?
         
-        var expr = Comma();
+        var expr = Or();
         if (Match(TokenType.Equal))
         {
             var equals = Previous;
@@ -132,6 +146,33 @@ public class Parser(List<Token> tokens)
             }
             
             Error(equals, "Invalid assignment target");
+        }
+
+        return expr;
+    }
+
+    private IExpression Or()
+    {
+        var expr = And();
+        while (Match(TokenType.Or))
+        {
+            var op = Previous;
+            var right = And();
+            expr = new Logical(expr, op, right);
+        }
+
+        return expr;
+    }
+
+    private IExpression And()
+    {
+        var expr = Comma();
+
+        while (Match(TokenType.And))
+        {
+            var op = Previous;
+            var right = Equality();
+            expr = new Logical(expr, op, right);
         }
 
         return expr;

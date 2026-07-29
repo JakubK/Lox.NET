@@ -137,6 +137,22 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return expression.Val;
     }
 
+    public object? VisitLogical(Logical expression)
+    {
+        var left = Evaluate(expression.Left);
+
+        if (expression.Op.Type == TokenType.Or)
+        {
+            if (IsTruthy(left)) return left;
+        }
+        else
+        {
+            if (!IsTruthy(left)) return left;
+        }
+
+        return Evaluate(expression.Right);
+    }
+
     public object VisitUnary(Unary expression)
     {
         var right = Evaluate(expression.Right);
@@ -228,6 +244,19 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
     public object VisitBlock(Block expression)
     {
         ExecuteBlock(expression.Statements, new VariableEnvironment(_environment));
+        return null;
+    }
+
+    public object VisitIf(If statement)
+    {
+        if (IsTruthy(Evaluate(statement.Condition)))
+        {
+            Execute(statement.ThenBranch);
+        } else if (statement.ElseBranch != null)
+        {
+            Execute(statement.ElseBranch);
+        }
+
         return null;
     }
 

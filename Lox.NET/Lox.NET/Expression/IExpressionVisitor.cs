@@ -11,6 +11,7 @@ public interface IExpressionVisitor<T>
 	T VisitBinary(Binary expression);
 	T VisitGrouping(Grouping expression);
 	T VisitLiteral(Literal expression);
+	T VisitLogical(Logical expression);
 	T VisitUnary(Unary expression);
 	T VisitVariable(Variable expression);
 

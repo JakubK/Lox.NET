@@ -31,6 +31,11 @@ public class AstPrinter : IExpressionVisitor<string>
         return expression.Val.ToString()!;
     }
 
+    public string VisitLogical(Logical expression)
+    {
+        throw new NotImplementedException();
+    }
+
     public string VisitUnary(Unary expression)
     {
         return Parenthesize(expression.Op.Lexeme, expression.Right);
