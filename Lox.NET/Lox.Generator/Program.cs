@@ -11,6 +11,7 @@ await Generator.DefineAstAsync(args[0], "Lox.NET.Expression","IExpression", [
     "Grouping : IExpression expression",
     "Literal : Object val",
     "Unary : Token op, IExpression right",
+    "Ternary : IExpression condition, Token firstOperatorToken, IExpression ifTrue, Token secondOperatorToken, IExpression ifFalse",
 ]);
 
 

@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text;
 using Lox.NET.Expression;
 
@@ -30,6 +29,12 @@ public class AstPrinter : IVisitor<string>
     public string VisitUnary(Unary expression)
     {
         return Parenthesize(expression.Op.Lexeme, expression.Right);
+    }
+
+    public string VisitTernary(Ternary expression)
+    {
+        return Parenthesize(expression.FirstOperatorToken.Lexeme + expression.SecondOperatorToken.Lexeme, expression.Condition,
+            expression.IfTrue, expression.IfFalse);
     }
 
     private string Parenthesize(string name, params IEnumerable<IExpression> expressions)

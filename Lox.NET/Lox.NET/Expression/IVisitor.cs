@@ -10,4 +10,5 @@ public interface IVisitor<T>
 	T VisitGrouping(Grouping expression);
 	T VisitLiteral(Literal expression);
 	T VisitUnary(Unary expression);
+	T VisitTernary(Ternary expression);
 }

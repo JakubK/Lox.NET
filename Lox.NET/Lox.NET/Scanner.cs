@@ -55,6 +55,8 @@ public class Scanner(string source)
             case '+' : AddToken(TokenType.Plus); break;
             case ';' : AddToken(TokenType.Semicolon); break;
             case '*' : AddToken(TokenType.Star); break;
+            case ':' : AddToken(TokenType.Colon); break;
+            case '?' : AddToken(TokenType.QuestionMark); break;
             case '!' : AddToken(Match('=') ? TokenType.BangEqual : TokenType.Bang); break;
             case '=' : AddToken(Match('=') ? TokenType.EqualEqual : TokenType.Equal); break;
             case '<' : AddToken(Match('=') ? TokenType.LessEqual : TokenType.Less); break;
@@ -115,10 +117,10 @@ public class Scanner(string source)
 
     private void Identifier()
     {
-        while (IsAlphaNumeric(Peek())) Advance();
+        while (IsAlphaNumeric(Peek())) Advance(); // Consume everything alphanumeric as long as possible
 
         var text = Utils.Substring(source, _start, _current);
-        var type = _keywords.GetValueOrDefault(text, TokenType.Identifier);
+        var type = _keywords.GetValueOrDefault(text, TokenType.Identifier); // Try to match the keyword, fallback to Identifier (variableName, fieldName etc.)
         
         AddToken(type);
     }
@@ -135,19 +137,22 @@ public class Scanner(string source)
 
     private void Number()
     {
-        while (IsDigit(Peek())) Advance();
+        while (IsDigit(Peek())) Advance(); // Consume integral part
         
         // look for fractional part
         if (Peek() == '.' && IsDigit(PeekNext()))
         {
-            // Consume '.'
-            Advance();
-            while (IsDigit(Peek())) Advance();
+            Advance(); // Consume '.'
+            while (IsDigit(Peek())) Advance(); // Consume fractional part
         }
         
         AddToken(TokenType.Number, double.Parse(Utils.Substring(source, _start, _current), CultureInfo.InvariantCulture));
     }
 
+    /// <summary>
+    /// Get character that would be pointed if pointer got incremented
+    /// </summary>
+    /// <returns></returns>
     private char PeekNext()
     {
         if (_current + 1 >= source.Length) return '\0';
@@ -163,8 +168,8 @@ public class Scanner(string source)
     {
         while (Peek() != '"' && !IsAtEnd)
         {
-            if (Peek() == '\n') _line++;
-            Advance();
+            if (Peek() == '\n') _line++; // Support multiline string
+            Advance(); // Consume as string everything before final " token
         }
 
         if (IsAtEnd)
@@ -173,31 +178,43 @@ public class Scanner(string source)
             return;
         }
 
-        // Closing "
-        Advance();
+        Advance(); // Closing "
         
         var value = Utils.Substring(source, _start + 1, _current - 1);
         AddToken(TokenType.String, value);
     }
 
+    /// <summary>
+    /// Get character currently pointed without touching pointer
+    /// </summary>
+    /// <returns></returns>
     private char Peek()
     {
         if (IsAtEnd) return '\0';
         return source[_current];
     }
 
+    /// <summary>
+    /// Increment the pointer if it points expected character
+    /// </summary>
+    /// <param name="expected"></param>
+    /// <returns></returns>
     private bool Match(char expected)
     {
         if (IsAtEnd) return false;
-        if (source.ElementAt(_current) != expected) return false;
+        if (source[_current] != expected) return false;
 
         _current++;
         return true;
     }
 
+    /// <summary>
+    /// Get character currently pointed by pointer and then increment the pointer
+    /// </summary>
+    /// <returns></returns>
     private char Advance()
     {
-        return source.ElementAt(_current++);
+        return source[_current++];
     }
 
     private void AddToken(TokenType type, object? literal = null)
