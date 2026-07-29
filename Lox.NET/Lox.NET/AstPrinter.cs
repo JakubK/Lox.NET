@@ -5,6 +5,11 @@ namespace Lox.NET;
 
 public class AstPrinter : IExpressionVisitor<string>
 {
+    public string Print(IExpression expression)
+    {
+        return expression.Accept(this);
+    }
+    
     public string VisitAssign(Assign expression)
     {
         throw new NotImplementedException();

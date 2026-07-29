@@ -9,6 +9,7 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
 {
     private VariableEnvironment _environment = new();
     
+    
     public void Interpret(IEnumerable<IStatement> statements)
     {
         try
@@ -250,6 +251,8 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
     public object VisitPrint(Print statement)
     {
         var val = Evaluate(statement.Expr);
+        if (val is null)
+            throw new LoxRuntimeException(null, "Variable is null");
         Console.WriteLine(Stringify(val));
         return null;
     }

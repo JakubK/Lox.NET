@@ -39,13 +39,29 @@ public static class Lox
         var tokens = scanner.ScanTokens();
 
         var parser = new Parser(tokens);
+
+        try
+        {
+            var expression = parser.ParseExpression();
+        
+            if (expression != null)
+            {
+                Console.WriteLine(new AstPrinter().Print(expression));
+                parser.Reset();
+                return;
+            }
+        }
+        catch
+        {
+            
+        }
+        
+        
         var statements = parser.Parse();
         
         if (_hadError) return;
 
         interpreter.Interpret(statements);
-        
-        //Console.WriteLine(new AstPrinter().Print(expression));
     }
 
     public static void Error(int line, string message)
@@ -60,7 +76,8 @@ public static class Lox
 
     public static void RuntimeError(LoxRuntimeException exception)
     {
-        Console.WriteLine($"{exception.Message} \n[line {exception.Token.Line}]");
+        var lineExpressionPart = exception.Token is not null ? $"[line {exception.Token!.Line}]" : string.Empty;
+        Console.WriteLine($"{exception.Message} \n{lineExpressionPart}");
         _hadRuntimeError = true;
     }
 }

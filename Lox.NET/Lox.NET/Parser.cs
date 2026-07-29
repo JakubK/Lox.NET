@@ -24,6 +24,26 @@ public class Parser(List<Token> tokens)
         return result;
     }
 
+    public int Reset()
+    {
+        var cache = _current;
+        _current = 0;
+        
+        return cache;
+    }
+    
+    public IExpression? ParseExpression()
+    {
+        try
+        {
+            return Expression();
+        }
+        catch (ParseException error)
+        {
+            return null;
+        }
+    }
+
     private IStatement Declaration()
     {
         // declaration -> VariableDeclaration | Statement
@@ -251,8 +271,7 @@ public class Parser(List<Token> tokens)
             return new Grouping(expr);
         }
         
-        Error(Peek, "Expected expression");
-        throw new ParseException();
+        throw new ParseException(Peek, "Expected expression");
     }
 
     /// <summary>
