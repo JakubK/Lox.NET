@@ -7,6 +7,7 @@ namespace Lox.NET.Expression;
 public interface IExpressionVisitor<T>
 {
 	T VisitTernary(Ternary expression);
+	T VisitAssign(Assign expression);
 	T VisitBinary(Binary expression);
 	T VisitGrouping(Grouping expression);
 	T VisitLiteral(Literal expression);

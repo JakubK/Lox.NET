@@ -5,6 +5,11 @@ namespace Lox.NET;
 
 public class AstPrinter : IExpressionVisitor<string>
 {
+    public string VisitAssign(Assign expression)
+    {
+        throw new NotImplementedException();
+    }
+
     public string VisitBinary(Binary expression)
     {
         return Parenthesize(expression.Op.Lexeme, expression.Left, expression.Right);

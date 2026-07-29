@@ -7,7 +7,7 @@ namespace Lox.NET;
 
 public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object>
 {
-    private readonly VariableEnvironment _environment = new();
+    private VariableEnvironment _environment = new();
     
     public void Interpret(IEnumerable<IStatement> statements)
     {
@@ -45,6 +45,13 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         }
 
         return val.ToString();
+    }
+
+    public object? VisitAssign(Assign expression)
+    {
+        var val = Evaluate(expression.Right);
+        _environment.Assign(expression.Name, val);
+        return val;
     }
 
     public object VisitBinary(Binary expression)
@@ -215,6 +222,29 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
     {
         Evaluate(statement.Expr);
         return null;
+    }
+
+    public object VisitBlock(Block expression)
+    {
+        ExecuteBlock(expression.Statements, new VariableEnvironment(_environment));
+        return null;
+    }
+
+    private void ExecuteBlock(List<IStatement> statements, VariableEnvironment variableEnvironment)
+    {
+        var previous = _environment;
+        try
+        {
+            _environment = variableEnvironment;
+            foreach (var statement in statements)
+            {
+                Execute(statement);
+            }
+        }
+        finally
+        {
+            _environment = previous;
+        }
     }
 
     public object VisitPrint(Print statement)

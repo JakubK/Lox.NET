@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Lox.NET.Exceptions;
 using Lox.NET.Expression;
 using Lox.NET.Statement;
@@ -39,8 +38,6 @@ public class Parser(List<Token> tokens)
             Synchronize();
             return null;
         }
-        
-        return null;
     }
 
     private IStatement VariableDeclaration()
@@ -55,11 +52,26 @@ public class Parser(List<Token> tokens)
 
     private IStatement Statement()
     {
-        // statement -> "print" printStatement | expressionStatement
+        // statement -> "print" printStatement | expressionStatement | block
         if (Match(TokenType.Print))
             return PrintStatement();
+        if (Match(TokenType.LeftBrace))
+            return new Block(Block());
 
         return ExpressionStatement();
+    }
+
+    private List<IStatement> Block()
+    {
+        var statements = new List<IStatement>();
+
+        while (!Check(TokenType.RightBrace) && !IsAtEnd)
+        {
+            statements.Add(Declaration());
+        }
+
+        Consume(TokenType.RightBrace, "Expect '}' after block.");
+        return statements;
     }
 
     private IStatement ExpressionStatement()
@@ -80,9 +92,31 @@ public class Parser(List<Token> tokens)
 
     private IExpression Expression()
     {
-        return Comma();
+        return Assignment();
     }
-    
+
+    private IExpression Assignment()
+    {
+        // assignment -> comma ('=' assignment)?
+        
+        var expr = Comma();
+        if (Match(TokenType.Equal))
+        {
+            var equals = Previous;
+            var val = Assignment();
+
+            if (expr is Variable)
+            {
+                var name = ((Variable)expr).Name;
+                return new Assign(name, val);
+            }
+            
+            Error(equals, "Invalid assignment target");
+        }
+
+        return expr;
+    }
+
     private IExpression Comma()
     {
         // Conditional ("," Conditional)*

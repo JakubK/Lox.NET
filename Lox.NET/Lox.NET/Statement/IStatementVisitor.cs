@@ -8,6 +8,7 @@ namespace Lox.NET.Statement;
 public interface IStatementVisitor<T>
 {
 	T VisitStatement(Statement expression);
+	T VisitBlock(Block expression);
 	T VisitPrint(Print expression);
 	T VisitVar(Var expression);
 
