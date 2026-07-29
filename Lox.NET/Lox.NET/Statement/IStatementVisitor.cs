@@ -12,5 +12,6 @@ public interface IStatementVisitor<T>
 	T VisitIf(If expression);
 	T VisitPrint(Print expression);
 	T VisitVar(Var expression);
+	T VisitWhile(While expression);
 
 }

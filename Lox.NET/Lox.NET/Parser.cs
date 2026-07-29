@@ -72,15 +72,66 @@ public class Parser(List<Token> tokens)
 
     private IStatement Statement()
     {
-        // statement -> ifStatement | printStatement | expressionStatement | block
+        // statement -> forStatement | ifStatement | printStatement | expressionStatement | block
+        if (Match(TokenType.For))
+            return ForStatement();
         if (Match(TokenType.If))
             return IfStatement();
         if (Match(TokenType.Print))
             return PrintStatement();
+        if (Match(TokenType.While))
+            return WhileStatement();
         if (Match(TokenType.LeftBrace))
             return new Block(Block());
 
         return ExpressionStatement();
+    }
+
+    private IStatement ForStatement()
+    {
+        Consume(TokenType.LeftParen, "Expect '(' after 'while'");
+        
+        var initializer = Match(TokenType.Semicolon)
+            ? null
+            : Match(TokenType.Var) ? VariableDeclaration() : ExpressionStatement();
+
+        var condition = !Check(TokenType.Semicolon) ? Expression() : null;
+
+        Consume(TokenType.Semicolon, "Expect ';' after loop condition");
+
+        var increment = !Check(TokenType.RightParen) ? Expression() : null;
+        Consume(TokenType.RightParen, "Expect ')' after for clauses");
+
+        var body = Statement();
+
+        if (increment != null)
+        {
+            body = new Block([body, new Statement.Statement(increment)]);
+        }
+
+        if (condition == null)
+        {
+            condition = new Literal(true);
+        }
+
+        body = new While(condition, body);
+
+        if (initializer != null)
+        {
+            body = new Block([initializer, body]);
+        }
+        
+        return body;
+    }
+
+    private IStatement WhileStatement()
+    {
+        Consume(TokenType.LeftParen, "Expect '(' after 'while'");
+        var condition = Expression();
+        Consume(TokenType.RightParen, "Expect ')' after condition");
+        var body = Statement();
+
+        return new While(condition, body);
     }
 
     private IStatement IfStatement()

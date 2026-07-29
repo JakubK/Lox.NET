@@ -292,4 +292,14 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         _environment.Define(expression.Name.Lexeme, value);
         return null;
     }
+
+    public object VisitWhile(While statement)
+    {
+        while (IsTruthy(Evaluate(statement.Condition)))
+        {
+            Execute(statement.Body);
+        }
+
+        return null;
+    }
 }
