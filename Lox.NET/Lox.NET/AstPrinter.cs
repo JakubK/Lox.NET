@@ -25,6 +25,11 @@ public class AstPrinter : IExpressionVisitor<string>
         return Parenthesize("group", expression.Expression);
     }
 
+    public string VisitCall(Call expression)
+    {
+        throw new NotImplementedException();
+    }
+
     public string VisitLiteral(Literal expression)
     {
         if (expression.Val == null) return "nil";

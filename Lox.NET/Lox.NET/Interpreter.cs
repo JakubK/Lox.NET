@@ -7,7 +7,15 @@ namespace Lox.NET;
 
 public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object>
 {
-    private VariableEnvironment _environment = new();
+    public readonly VariableEnvironment Globals = new();
+    private VariableEnvironment _environment;
+
+    public Interpreter()
+    {
+        _environment = Globals;
+        
+        Globals.Define("clock", new Clock());
+    }
     
     
     public void Interpret(IEnumerable<IStatement> statements)
@@ -132,6 +140,20 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return Evaluate(expression.Expression);
     }
 
+    public object? VisitCall(Call expression)
+    {
+        var callee = Evaluate(expression.Callee);
+        var arguments = expression.Arguments.Select(Evaluate).ToList();
+
+        if (!(callee is ICallable func))
+            throw new LoxRuntimeException(expression.Paren, "Can only call functions and classes");
+
+        if (arguments.Count != func.Arity())
+            throw new LoxRuntimeException(expression.Paren, $"Expected {func.Arity()} arguments but got {arguments.Count}");
+        
+        return func.Call(this, arguments);
+    }
+
     public object VisitLiteral(Literal expression)
     {
         return expression.Val;
@@ -247,6 +269,13 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return null;
     }
 
+    public object VisitFunction(Function statement)
+    {
+        var func = new LoxFunction(statement);
+        _environment.Define(statement.Name.Lexeme, func);
+        return null;
+    }
+
     public object VisitIf(If statement)
     {
         if (IsTruthy(Evaluate(statement.Condition)))
@@ -260,7 +289,7 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return null;
     }
 
-    private void ExecuteBlock(List<IStatement> statements, VariableEnvironment variableEnvironment)
+    public void ExecuteBlock(List<IStatement> statements, VariableEnvironment variableEnvironment)
     {
         var previous = _environment;
         try

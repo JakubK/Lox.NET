@@ -40,21 +40,22 @@ public static class Lox
 
         var parser = new Parser(tokens);
 
-        try
-        {
-            var expression = parser.ParseExpression();
-        
-            if (expression != null)
-            {
-                Console.WriteLine(new AstPrinter().Print(expression));
-                parser.Reset();
-                return;
-            }
-        }
-        catch
-        {
-            
-        }
+        // TODO: Refactor to support both expression eval and running code
+        // try
+        // {
+        //     var expression = parser.ParseExpression();
+        //
+        //     if (expression != null)
+        //     {
+        //         Console.WriteLine(new AstPrinter().Print(expression));
+        //         parser.Reset();
+        //         return;
+        //     }
+        // }
+        // catch
+        // {
+        //     
+        // }
         
         
         var statements = parser.Parse();

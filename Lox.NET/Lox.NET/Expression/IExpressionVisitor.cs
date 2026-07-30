@@ -10,6 +10,7 @@ public interface IExpressionVisitor<T>
 	T VisitAssign(Assign expression);
 	T VisitBinary(Binary expression);
 	T VisitGrouping(Grouping expression);
+	T VisitCall(Call expression);
 	T VisitLiteral(Literal expression);
 	T VisitLogical(Logical expression);
 	T VisitUnary(Unary expression);

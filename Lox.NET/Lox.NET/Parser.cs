@@ -47,11 +47,11 @@ public class Parser(List<Token> tokens)
 
     private IStatement Declaration()
     {
-        // declaration -> VariableDeclaration | Statement
+        // declaration -> functionDeclaration | VariableDeclaration | Statement
         try
         {
-            if (Match(TokenType.Var))
-                return VariableDeclaration();
+            if (Match(TokenType.Fun)) return FunctionDeclaration("function");
+            if (Match(TokenType.Var)) return VariableDeclaration();
             return Statement();
         }
         catch (ParseException ex)
@@ -59,6 +59,32 @@ public class Parser(List<Token> tokens)
             Synchronize();
             return null;
         }
+    }
+
+    private Function FunctionDeclaration(string kind)
+    {
+        var name = Consume(TokenType.Identifier, $"Expect {kind} name");
+        Consume(TokenType.LeftParen, $"Expect '(' after {kind} name");
+
+        var parameters = new List<Token>();
+        if (!Check(TokenType.RightParen))
+        {
+            do
+            {
+                if (parameters.Count >= 255)
+                {
+                    Error(Peek, "Can't have more than 255 parameters");
+                }
+
+                parameters.Add(Consume(TokenType.Identifier, "Expect paramter name"));
+            } while (Match(TokenType.Comma));
+        }
+
+        Consume(TokenType.RightParen, "Expect ')' after parameters");
+
+        Consume(TokenType.LeftBrace, $"Expect '{{' before {kind} body");
+        var body = Block();
+        return new Function(name, parameters, body);
     }
 
     private IStatement VariableDeclaration()
@@ -240,7 +266,7 @@ public class Parser(List<Token> tokens)
 
     private IExpression And()
     {
-        var expr = Comma();
+        var expr = Conditional();
 
         while (Match(TokenType.And))
         {
@@ -252,20 +278,21 @@ public class Parser(List<Token> tokens)
         return expr;
     }
 
-    private IExpression Comma()
-    {
-        // Conditional ("," Conditional)*
-        var expr = Conditional();
-        
-        while (Match(TokenType.Comma))
-        {
-            var op = Previous;
-            var right = Conditional();
-            expr = new Binary(expr, op, right);
-        }
-
-        return expr;
-    }
+    // TODO: Comma operator
+    // private IExpression Comma()
+    // {
+    //     // Conditional ("," Conditional)*
+    //     var expr = Conditional();
+    //     
+    //     while (Match(TokenType.Comma))
+    //     {
+    //         var op = Previous;
+    //         var right = Conditional();
+    //         expr = new Binary(expr, op, right);
+    //     }
+    //
+    //     return expr;
+    // }
 
     private IExpression Conditional()
     {
@@ -349,7 +376,7 @@ public class Parser(List<Token> tokens)
 
     private IExpression Unary()
     {
-        // ( ( "!" | "-" ) unary ) | primary
+        // ( ( "!" | "-" ) unary ) | call
         
         if (Match(TokenType.Bang, TokenType.Minus))
         {
@@ -358,7 +385,42 @@ public class Parser(List<Token> tokens)
             return new Unary(op, right);
         }
 
-        return Primary();
+        return Call();
+    }
+
+    private IExpression Call()
+    {
+        // primary ('(' arguments? ')' )*
+        var expr = Primary();
+        while (true)
+        {
+            if (Match(TokenType.LeftParen))
+                expr = FinishCall(expr);
+            else
+                break;
+        }
+
+        return expr;
+    }
+
+    private IExpression FinishCall(IExpression callee)
+    {
+        var arguments = new List<IExpression>();
+        if (!Check(TokenType.RightParen))
+        {
+            do
+            {
+                if (arguments.Count >= 255)
+                {
+                    Error(Peek, "Can't have more arguments than 255");
+                }
+                arguments.Add(Expression());
+            } while (Match(TokenType.Comma));
+        }
+
+        var paren = Consume(TokenType.RightParen, "Expect ')' after arguments");
+        
+        return new Call(callee, paren, arguments);
     }
 
     private IExpression Primary()
