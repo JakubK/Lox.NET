@@ -343,6 +343,12 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return null;
     }
 
+    public object VisitReturn(Return statement)
+    {
+        var val = statement.Value != null ? Evaluate(statement.Value) : null;
+        throw new ReturnException(val);
+    }
+
     public object VisitBreak(Break expression)
     {
         throw new BreakException();

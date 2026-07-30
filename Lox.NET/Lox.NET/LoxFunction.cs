@@ -1,3 +1,4 @@
+using Lox.NET.Exceptions;
 using Lox.NET.Statement;
 
 namespace Lox.NET;
@@ -6,7 +7,7 @@ public class LoxFunction(Function declaration) : ICallable
 {
     public int Arity() => declaration.Parameters.Count;
 
-    public object Call(Interpreter interpreter, List<object> arguments)
+    public object? Call(Interpreter interpreter, List<object> arguments)
     {
         var env = new VariableEnvironment(interpreter.Globals);
 
@@ -15,7 +16,15 @@ public class LoxFunction(Function declaration) : ICallable
             env.Define(declaration.Parameters[i].Lexeme, arguments[i]);
         }
 
-        interpreter.ExecuteBlock(declaration.Body, env);
+        try
+        {
+            interpreter.ExecuteBlock(declaration.Body, env);
+        }
+        catch (ReturnException ex)
+        {
+            return ex.Value;
+        }
+        
         return null;
     }
 

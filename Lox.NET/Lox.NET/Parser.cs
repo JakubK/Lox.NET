@@ -99,7 +99,9 @@ public class Parser(List<Token> tokens)
 
     private IStatement Statement()
     {
-        // statement -> forStatement | whileStatement | continueStatement | breakStatement | ifStatement | printStatement | expressionStatement | block
+        // statement -> returnStatement | forStatement | whileStatement | continueStatement | breakStatement | ifStatement | printStatement | expressionStatement | block
+        if (Match(TokenType.Return))
+            return ReturnStatement();
         if (Match(TokenType.Break))
             return BreakStatement();
         if (Match(TokenType.Continue))
@@ -116,6 +118,15 @@ public class Parser(List<Token> tokens)
             return new Block(Block());
 
         return ExpressionStatement();
+    }
+
+    private IStatement ReturnStatement()
+    {
+        var keyword = Previous;
+        var val = !Check(TokenType.Semicolon) ? Expression() : null;
+        Consume(TokenType.Semicolon, "Expect ';' after return value");
+
+        return new Return(keyword, val);
     }
 
     private IStatement ContinueStatement()
