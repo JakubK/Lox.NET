@@ -116,10 +116,12 @@ public static class Generator
         {
             var split = field.Split(" ");
 
-            var fieldType = split[0];
-            var fieldName = split[1];
+            var fieldType = split[0].Trim();
+            if (split.Length == 1)
+                continue;
+
+            var fieldName = split[1].Trim();
             var prop = fieldName[0].ToString().ToUpper() + fieldName.Substring(1, fieldName.Length-1);
-            
             sb.AppendLine($"\tpublic {fieldType} {prop} => {fieldName};");
         }
         sb.AppendLine($"\tpublic T Accept<T>(I{dir}Visitor<T> visitor) => visitor.Visit{className}(this);");

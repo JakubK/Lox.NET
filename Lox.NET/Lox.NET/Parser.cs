@@ -6,6 +6,7 @@ namespace Lox.NET;
 
 public class Parser(List<Token> tokens)
 {
+    private int _loopDepth;
     private int _current;
     private bool IsAtEnd => Peek.Type == TokenType.Eof;
 
@@ -72,7 +73,11 @@ public class Parser(List<Token> tokens)
 
     private IStatement Statement()
     {
-        // statement -> forStatement | ifStatement | printStatement | expressionStatement | block
+        // statement -> forStatement | whileStatement | continueStatement | breakStatement | ifStatement | printStatement | expressionStatement | block
+        if (Match(TokenType.Break))
+            return BreakStatement();
+        if (Match(TokenType.Continue))
+            return ContinueStatement();
         if (Match(TokenType.For))
             return ForStatement();
         if (Match(TokenType.If))
@@ -85,6 +90,20 @@ public class Parser(List<Token> tokens)
             return new Block(Block());
 
         return ExpressionStatement();
+    }
+
+    private IStatement ContinueStatement()
+    {
+        Consume(TokenType.Semicolon, "Expect ';' after 'continue'");
+        if (_loopDepth == 0) Error(Peek, "continue statement used outside of the loop");
+        return new Continue();
+    }
+
+    private IStatement BreakStatement()
+    {
+        Consume(TokenType.Semicolon, "Expect ';' after 'continue'");
+        if (_loopDepth == 0) Error(Peek, "break statement used outside of the loop");
+        return new Break();
     }
 
     private IStatement ForStatement()
@@ -102,8 +121,10 @@ public class Parser(List<Token> tokens)
         var increment = !Check(TokenType.RightParen) ? Expression() : null;
         Consume(TokenType.RightParen, "Expect ')' after for clauses");
 
+        _loopDepth++;
         var body = Statement();
-
+        _loopDepth--;
+        
         if (increment != null)
         {
             body = new Block([body, new Statement.Statement(increment)]);
@@ -129,8 +150,10 @@ public class Parser(List<Token> tokens)
         Consume(TokenType.LeftParen, "Expect '(' after 'while'");
         var condition = Expression();
         Consume(TokenType.RightParen, "Expect ')' after condition");
+        _loopDepth++;
         var body = Statement();
-
+        _loopDepth--;
+        
         return new While(condition, body);
     }
 

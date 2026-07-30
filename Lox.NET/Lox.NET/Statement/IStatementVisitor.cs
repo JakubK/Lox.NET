@@ -13,5 +13,7 @@ public interface IStatementVisitor<T>
 	T VisitPrint(Print expression);
 	T VisitVar(Var expression);
 	T VisitWhile(While expression);
+	T VisitBreak(Break expression);
+	T VisitContinue(Continue expression);
 
 }

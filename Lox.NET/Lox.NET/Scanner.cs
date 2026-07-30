@@ -21,7 +21,9 @@ public class Scanner(string source)
         { "this", TokenType.This },
         { "true", TokenType.True },
         { "var", TokenType.Var },
-        { "while", TokenType.While }
+        { "while", TokenType.While },
+        { "break", TokenType.Break},
+        { "continue", TokenType.Continue},
     };
     private readonly List<Token> _tokens = new();
     private int _start;

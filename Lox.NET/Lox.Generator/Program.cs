@@ -23,5 +23,7 @@ await Generator.DefineAstAsync(args[0], "Lox.NET.Statement","IStatement", [
     "If : IExpression condition, IStatement thenBranch, IStatement elseBranch",
     "Print : IExpression expr",
     "Var : Token name, IExpression initializer",
-    "While : IExpression condition, IStatement body"
+    "While : IExpression condition, IStatement body",
+    "Break : ",
+    "Continue : "
 ], ["Lox.NET.Expression"]);

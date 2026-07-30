@@ -70,7 +70,7 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
             TokenType.GreaterEqual => HandleGreaterEqualBinary(expression, left, right),
             TokenType.Less => HandleLessBinary(expression, left, right),
             TokenType.LessEqual => HandleLessEqualBinary(expression, left, right),
-            TokenType.Bang => IsEqual(left, right),
+            TokenType.EqualEqual => IsEqual(left, right),
             TokenType.BangEqual => !IsEqual(left, right),
             
             _ => throw new UnreachableException()
@@ -297,9 +297,30 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
     {
         while (IsTruthy(Evaluate(statement.Condition)))
         {
-            Execute(statement.Body);
+            try
+            {
+                Execute(statement.Body);
+            }
+            catch (BreakException)
+            {
+                break;
+            }
+            catch (ContinueException)
+            {
+                continue;
+            }
         }
 
         return null;
+    }
+
+    public object VisitBreak(Break expression)
+    {
+        throw new BreakException();
+    }
+
+    public object VisitContinue(Continue expression)
+    {
+        throw new ContinueException();
     }
 }
