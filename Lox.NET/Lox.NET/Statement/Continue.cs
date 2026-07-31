@@ -8,5 +8,5 @@ namespace Lox.NET.Statement;
 
 public class Continue() : IStatement
 {
-	public T Accept<T>(IStatementVisitor<T> visitor) => visitor.VisitContinue(this);
+	public T Accept<T>(IStatementVisitor<T> visitor) => visitor.VisitContinueStatement(this);
 }

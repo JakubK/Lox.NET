@@ -9,5 +9,5 @@ namespace Lox.NET.Statement;
 public class Statement(IExpression expr) : IStatement
 {
 	public IExpression Expr => expr;
-	public T Accept<T>(IStatementVisitor<T> visitor) => visitor.VisitStatement(this);
+	public T Accept<T>(IStatementVisitor<T> visitor) => visitor.VisitStatementStatement(this);
 }

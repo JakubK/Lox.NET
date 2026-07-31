@@ -10,5 +10,5 @@ public class Binary(IExpression left, Token op, IExpression right) : IExpression
 	public IExpression Left => left;
 	public Token Op => op;
 	public IExpression Right => right;
-	public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.VisitBinary(this);
+	public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.VisitBinaryExpression(this);
 }

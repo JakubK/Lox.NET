@@ -11,5 +11,5 @@ public class Function(Token name, List<Token> parameters, List<IStatement> body)
 	public Token Name => name;
 	public List<Token> Parameters => parameters;
 	public List<IStatement> Body => body;
-	public T Accept<T>(IStatementVisitor<T> visitor) => visitor.VisitFunction(this);
+	public T Accept<T>(IStatementVisitor<T> visitor) => visitor.VisitFunctionStatement(this);
 }

@@ -6,14 +6,14 @@ namespace Lox.NET.Expression;
 
 public interface IExpressionVisitor<T>
 {
-	T VisitTernary(Ternary expression);
-	T VisitAssign(Assign expression);
-	T VisitBinary(Binary expression);
-	T VisitGrouping(Grouping expression);
-	T VisitCall(Call expression);
-	T VisitLiteral(Literal expression);
-	T VisitLogical(Logical expression);
-	T VisitUnary(Unary expression);
-	T VisitVariable(Variable expression);
+	T VisitTernaryExpression(Ternary expression);
+	T VisitAssignExpression(Assign expression);
+	T VisitBinaryExpression(Binary expression);
+	T VisitGroupingExpression(Grouping expression);
+	T VisitCallExpression(Call expression);
+	T VisitLiteralExpression(Literal expression);
+	T VisitLogicalExpression(Logical expression);
+	T VisitUnaryExpression(Unary expression);
+	T VisitVariableExpression(Variable expression);
 
 }

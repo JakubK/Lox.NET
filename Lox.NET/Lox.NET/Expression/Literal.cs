@@ -8,5 +8,5 @@ namespace Lox.NET.Expression;
 public class Literal(Object val) : IExpression
 {
 	public Object Val => val;
-	public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.VisitLiteral(this);
+	public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.VisitLiteralExpression(this);
 }

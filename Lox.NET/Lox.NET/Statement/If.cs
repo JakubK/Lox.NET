@@ -11,5 +11,5 @@ public class If(IExpression condition, IStatement thenBranch, IStatement elseBra
 	public IExpression Condition => condition;
 	public IStatement ThenBranch => thenBranch;
 	public IStatement ElseBranch => elseBranch;
-	public T Accept<T>(IStatementVisitor<T> visitor) => visitor.VisitIf(this);
+	public T Accept<T>(IStatementVisitor<T> visitor) => visitor.VisitIfStatement(this);
 }

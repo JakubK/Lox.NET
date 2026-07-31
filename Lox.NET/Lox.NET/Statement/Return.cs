@@ -10,5 +10,5 @@ public class Return(Token keyword, IExpression value) : IStatement
 {
 	public Token Keyword => keyword;
 	public IExpression Value => value;
-	public T Accept<T>(IStatementVisitor<T> visitor) => visitor.VisitReturn(this);
+	public T Accept<T>(IStatementVisitor<T> visitor) => visitor.VisitReturnStatement(this);
 }

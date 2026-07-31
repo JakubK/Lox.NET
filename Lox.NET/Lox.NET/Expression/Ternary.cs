@@ -12,5 +12,5 @@ public class Ternary(IExpression condition, Token firstOperatorToken, IExpressio
 	public IExpression IfTrue => ifTrue;
 	public Token SecondOperatorToken => secondOperatorToken;
 	public IExpression IfFalse => ifFalse;
-	public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.VisitTernary(this);
+	public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.VisitTernaryExpression(this);
 }

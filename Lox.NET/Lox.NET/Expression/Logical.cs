@@ -10,5 +10,5 @@ public class Logical(IExpression left, Token op, IExpression right) : IExpressio
 	public IExpression Left => left;
 	public Token Op => op;
 	public IExpression Right => right;
-	public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.VisitLogical(this);
+	public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.VisitLogicalExpression(this);
 }

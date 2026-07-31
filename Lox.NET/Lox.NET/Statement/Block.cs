@@ -9,5 +9,5 @@ namespace Lox.NET.Statement;
 public class Block(List<IStatement> statements) : IStatement
 {
 	public List<IStatement> Statements => statements;
-	public T Accept<T>(IStatementVisitor<T> visitor) => visitor.VisitBlock(this);
+	public T Accept<T>(IStatementVisitor<T> visitor) => visitor.VisitBlockStatement(this);
 }

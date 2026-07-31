@@ -8,5 +8,5 @@ namespace Lox.NET.Expression;
 public class Variable(Token name) : IExpression
 {
 	public Token Name => name;
-	public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.VisitVariable(this);
+	public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.VisitVariableExpression(this);
 }

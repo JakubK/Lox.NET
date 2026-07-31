@@ -10,5 +10,5 @@ public class While(IExpression condition, IStatement body) : IStatement
 {
 	public IExpression Condition => condition;
 	public IStatement Body => body;
-	public T Accept<T>(IStatementVisitor<T> visitor) => visitor.VisitWhile(this);
+	public T Accept<T>(IStatementVisitor<T> visitor) => visitor.VisitWhileStatement(this);
 }

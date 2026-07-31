@@ -80,10 +80,13 @@ public static class Generator
         sb.AppendLine($"public interface I{dir}Visitor<T>");
         sb.AppendLine("{");
 
+        var paramName = interfaceName.Substring(1, interfaceName.Length - 1).ToLower();
+        var paramNameCapital = string.Concat(paramName[0].ToString().ToUpper(), paramName.AsSpan(1));
+        
         foreach (var type in types)
         {
             var typeName = type.Split(":")[0].Trim();
-            sb.AppendLine($"\tT Visit{typeName}({typeName} expression);");
+            sb.AppendLine($"\tT Visit{typeName}{paramNameCapital}({typeName} {paramName});");
         }
         sb.AppendLine();
 
@@ -124,7 +127,11 @@ public static class Generator
             var prop = fieldName[0].ToString().ToUpper() + fieldName.Substring(1, fieldName.Length-1);
             sb.AppendLine($"\tpublic {fieldType} {prop} => {fieldName};");
         }
-        sb.AppendLine($"\tpublic T Accept<T>(I{dir}Visitor<T> visitor) => visitor.Visit{className}(this);");
+        
+        var paramName = interfaceName.Substring(1, interfaceName.Length - 1).ToLower();
+        var paramNameCapital = string.Concat(paramName[0].ToString().ToUpper(), paramName.AsSpan(1));
+        
+        sb.AppendLine($"\tpublic T Accept<T>(I{dir}Visitor<T> visitor) => visitor.Visit{className}{paramNameCapital}(this);");
         sb.AppendLine("}");
         
         var classPath = Path.Combine(outputDir, dir, className) + ".cs";

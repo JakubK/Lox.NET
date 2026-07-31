@@ -8,5 +8,5 @@ namespace Lox.NET.Statement;
 
 public class Break() : IStatement
 {
-	public T Accept<T>(IStatementVisitor<T> visitor) => visitor.VisitBreak(this);
+	public T Accept<T>(IStatementVisitor<T> visitor) => visitor.VisitBreakStatement(this);
 }

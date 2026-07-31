@@ -9,5 +9,5 @@ namespace Lox.NET.Statement;
 public class Print(IExpression expr) : IStatement
 {
 	public IExpression Expr => expr;
-	public T Accept<T>(IStatementVisitor<T> visitor) => visitor.VisitPrint(this);
+	public T Accept<T>(IStatementVisitor<T> visitor) => visitor.VisitPrintStatement(this);
 }

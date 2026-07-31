@@ -7,15 +7,15 @@ namespace Lox.NET.Statement;
 
 public interface IStatementVisitor<T>
 {
-	T VisitStatement(Statement expression);
-	T VisitBlock(Block expression);
-	T VisitFunction(Function expression);
-	T VisitIf(If expression);
-	T VisitPrint(Print expression);
-	T VisitVar(Var expression);
-	T VisitWhile(While expression);
-	T VisitReturn(Return expression);
-	T VisitBreak(Break expression);
-	T VisitContinue(Continue expression);
+	T VisitStatementStatement(Statement statement);
+	T VisitBlockStatement(Block statement);
+	T VisitFunctionStatement(Function statement);
+	T VisitIfStatement(If statement);
+	T VisitPrintStatement(Print statement);
+	T VisitVarStatement(Var statement);
+	T VisitWhileStatement(While statement);
+	T VisitReturnStatement(Return statement);
+	T VisitBreakStatement(Break statement);
+	T VisitContinueStatement(Continue statement);
 
 }

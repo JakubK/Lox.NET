@@ -8,7 +8,7 @@ public class Resolver(Interpreter interpreter) : IExpressionVisitor<object>, ISt
     private readonly Stack<Dictionary<string, bool>> _scopes = new();
     private FunctionType currentFunction = FunctionType.None;
     
-    public object VisitTernary(Ternary expression)
+    public object VisitTernaryExpression(Ternary expression)
     {
         Resolve(expression.Condition);
         Resolve(expression.IfTrue);
@@ -16,27 +16,27 @@ public class Resolver(Interpreter interpreter) : IExpressionVisitor<object>, ISt
         return null;
     }
 
-    public object VisitAssign(Assign expression)
+    public object VisitAssignExpression(Assign expression)
     {
         Resolve(expression.Right);
         ResolveLocal(expression, expression.Name);
         return null;
     }
 
-    public object VisitBinary(Binary expression)
+    public object VisitBinaryExpression(Binary expression)
     {
         Resolve(expression.Left);
         Resolve(expression.Right);
         return null;
     }
 
-    public object VisitGrouping(Grouping expression)
+    public object VisitGroupingExpression(Grouping expression)
     {
         Resolve(expression.Expression);
         return null;
     }
 
-    public object VisitCall(Call expression)
+    public object VisitCallExpression(Call expression)
     {
         Resolve(expression.Callee);
 
@@ -48,25 +48,25 @@ public class Resolver(Interpreter interpreter) : IExpressionVisitor<object>, ISt
         return null;
     }
 
-    public object VisitLiteral(Literal expression)
+    public object VisitLiteralExpression(Literal expression)
     {
         return null;
     }
 
-    public object VisitLogical(Logical expression)
+    public object VisitLogicalExpression(Logical expression)
     {
         Resolve(expression.Left);
         Resolve(expression.Right);
         return null;
     }
 
-    public object VisitUnary(Unary expression)
+    public object VisitUnaryExpression(Unary expression)
     {
         Resolve(expression.Right);
         return null;
     }
 
-    public object VisitVariable(Variable expression)
+    public object VisitVariableExpression(Variable expression)
     {
         if (_scopes.Count != 0)
         {
@@ -83,13 +83,13 @@ public class Resolver(Interpreter interpreter) : IExpressionVisitor<object>, ISt
         return null;
     }
 
-    public object VisitStatement(Statement.Statement statement)
+    public object VisitStatementStatement(Statement.Statement statement)
     {
         Resolve(statement.Expr);
         return null;
     }
 
-    public object VisitBlock(Block statement)
+    public object VisitBlockStatement(Block statement)
     {
         BeginScope();
         Resolve(statement.Statements);
@@ -97,7 +97,7 @@ public class Resolver(Interpreter interpreter) : IExpressionVisitor<object>, ISt
         return null;
     }
 
-    public object VisitFunction(Function statement)
+    public object VisitFunctionStatement(Function statement)
     {
         Declare(statement.Name);
         Define(statement.Name);
@@ -106,7 +106,7 @@ public class Resolver(Interpreter interpreter) : IExpressionVisitor<object>, ISt
         return null;
     }
 
-    public object VisitIf(If statement)
+    public object VisitIfStatement(If statement)
     {
         Resolve(statement.Condition);
         Resolve(statement.ThenBranch);
@@ -118,7 +118,7 @@ public class Resolver(Interpreter interpreter) : IExpressionVisitor<object>, ISt
         return null;
     }
 
-    public object VisitPrint(Print statement)
+    public object VisitPrintStatement(Print statement)
     {
         if (statement.Expr != null)
         {
@@ -128,7 +128,7 @@ public class Resolver(Interpreter interpreter) : IExpressionVisitor<object>, ISt
         return null;
     }
 
-    public object VisitVar(Var statement)
+    public object VisitVarStatement(Var statement)
     {
         Declare(statement.Name);
         if (statement.Initializer != null)
@@ -140,14 +140,14 @@ public class Resolver(Interpreter interpreter) : IExpressionVisitor<object>, ISt
         return null;
     }
 
-    public object VisitWhile(While statement)
+    public object VisitWhileStatement(While statement)
     {
         Resolve(statement.Condition);
         Resolve(statement.Body);
         return null;
     }
 
-    public object VisitReturn(Return statement)
+    public object VisitReturnStatement(Return statement)
     {
         if (currentFunction == FunctionType.None)
         {
@@ -162,12 +162,12 @@ public class Resolver(Interpreter interpreter) : IExpressionVisitor<object>, ISt
         return null;
     }
 
-    public object VisitBreak(Break expression)
+    public object VisitBreakStatement(Break expression)
     {
         return null;
     }
 
-    public object VisitContinue(Continue expression)
+    public object VisitContinueStatement(Continue expression)
     {
         return null;
     }

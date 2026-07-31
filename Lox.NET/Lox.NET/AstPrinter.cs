@@ -10,48 +10,48 @@ public class AstPrinter : IExpressionVisitor<string>
         return expression.Accept(this);
     }
     
-    public string VisitAssign(Assign expression)
+    public string VisitAssignExpression(Assign expression)
     {
         throw new NotImplementedException();
     }
 
-    public string VisitBinary(Binary expression)
+    public string VisitBinaryExpression(Binary expression)
     {
         return Parenthesize(expression.Op.Lexeme, expression.Left, expression.Right);
     }
 
-    public string VisitGrouping(Grouping expression)
+    public string VisitGroupingExpression(Grouping expression)
     {
         return Parenthesize("group", expression.Expression);
     }
 
-    public string VisitCall(Call expression)
+    public string VisitCallExpression(Call expression)
     {
         throw new NotImplementedException();
     }
 
-    public string VisitLiteral(Literal expression)
+    public string VisitLiteralExpression(Literal expression)
     {
         if (expression.Val == null) return "nil";
         return expression.Val.ToString()!;
     }
 
-    public string VisitLogical(Logical expression)
+    public string VisitLogicalExpression(Logical expression)
     {
         throw new NotImplementedException();
     }
 
-    public string VisitUnary(Unary expression)
+    public string VisitUnaryExpression(Unary expression)
     {
         return Parenthesize(expression.Op.Lexeme, expression.Right);
     }
 
-    public string VisitVariable(Variable expression)
+    public string VisitVariableExpression(Variable expression)
     {
         throw new NotImplementedException();
     }
 
-    public string VisitTernary(Ternary expression)
+    public string VisitTernaryExpression(Ternary expression)
     {
         return Parenthesize(expression.FirstOperatorToken.Lexeme + expression.SecondOperatorToken.Lexeme, expression.Condition,
             expression.IfTrue, expression.IfFalse);

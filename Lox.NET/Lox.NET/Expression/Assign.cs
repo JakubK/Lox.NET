@@ -9,5 +9,5 @@ public class Assign(Token name, IExpression right) : IExpression
 {
 	public Token Name => name;
 	public IExpression Right => right;
-	public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.VisitAssign(this);
+	public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.VisitAssignExpression(this);
 }

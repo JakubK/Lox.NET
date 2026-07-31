@@ -10,5 +10,5 @@ public class Call(IExpression callee, Token paren, List<IExpression> arguments) 
 	public IExpression Callee => callee;
 	public Token Paren => paren;
 	public List<IExpression> Arguments => arguments;
-	public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.VisitCall(this);
+	public T Accept<T>(IExpressionVisitor<T> visitor) => visitor.VisitCallExpression(this);
 }

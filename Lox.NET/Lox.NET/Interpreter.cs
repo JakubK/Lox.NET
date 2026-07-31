@@ -57,7 +57,7 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return val.ToString();
     }
 
-    public object? VisitAssign(Assign expression)
+    public object? VisitAssignExpression(Assign expression)
     {
         var val = Evaluate(expression.Right);
 
@@ -74,7 +74,7 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return val;
     }
 
-    public object VisitBinary(Binary expression)
+    public object VisitBinaryExpression(Binary expression)
     {
         var left = Evaluate(expression.Left);
         var right = Evaluate(expression.Right);
@@ -146,12 +146,12 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         throw new LoxRuntimeException(op, "Operands must be numbers");
     }
 
-    public object VisitGrouping(Grouping expression)
+    public object VisitGroupingExpression(Grouping expression)
     {
         return Evaluate(expression.Expression);
     }
 
-    public object? VisitCall(Call expression)
+    public object? VisitCallExpression(Call expression)
     {
         var callee = Evaluate(expression.Callee);
         var arguments = expression.Arguments.Select(Evaluate).ToList();
@@ -165,12 +165,12 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return func.Call(this, arguments);
     }
 
-    public object VisitLiteral(Literal expression)
+    public object VisitLiteralExpression(Literal expression)
     {
         return expression.Val;
     }
 
-    public object? VisitLogical(Logical expression)
+    public object? VisitLogicalExpression(Logical expression)
     {
         var left = Evaluate(expression.Left);
 
@@ -186,7 +186,7 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return Evaluate(expression.Right);
     }
 
-    public object VisitUnary(Unary expression)
+    public object VisitUnaryExpression(Unary expression)
     {
         var right = Evaluate(expression.Right);
 
@@ -202,13 +202,12 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         }
     }
 
-    public object? VisitVariable(Variable expression)
+    public object? VisitVariableExpression(Variable expression)
     {
         return LookupVariable(expression.Name, expression);
-        return _environment.Get(expression.Name);
     }
 
-    public object VisitTernary(Ternary expression)
+    public object VisitTernaryExpression(Ternary expression)
     {
         var condition = Evaluate(expression.Condition);
         var firstOperand = Evaluate(expression.IfTrue);
@@ -269,26 +268,26 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return left.Equals(right);
     }
 
-    public object VisitStatement(Statement.Statement statement)
+    public object VisitStatementStatement(Statement.Statement statement)
     {
         Evaluate(statement.Expr);
         return null;
     }
 
-    public object VisitBlock(Block expression)
+    public object VisitBlockStatement(Block expression)
     {
         ExecuteBlock(expression.Statements, new VariableEnvironment(_environment));
         return null;
     }
 
-    public object VisitFunction(Function statement)
+    public object VisitFunctionStatement(Function statement)
     {
         var func = new LoxFunction(statement, _environment);
         _environment.Define(statement.Name.Lexeme, func);
         return null;
     }
 
-    public object VisitIf(If statement)
+    public object VisitIfStatement(If statement)
     {
         if (IsTruthy(Evaluate(statement.Condition)))
         {
@@ -318,7 +317,7 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         }
     }
 
-    public object VisitPrint(Print statement)
+    public object VisitPrintStatement(Print statement)
     {
         var val = Evaluate(statement.Expr);
         if (val is null)
@@ -327,14 +326,14 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return null;
     }
 
-    public object VisitVar(Var expression)
+    public object VisitVarStatement(Var expression)
     {
         var value = expression.Initializer != null ? Evaluate(expression.Initializer) : null;
         _environment.Define(expression.Name.Lexeme, value);
         return null;
     }
 
-    public object VisitWhile(While statement)
+    public object VisitWhileStatement(While statement)
     {
         while (IsTruthy(Evaluate(statement.Condition)))
         {
@@ -355,18 +354,18 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return null;
     }
 
-    public object VisitReturn(Return statement)
+    public object VisitReturnStatement(Return statement)
     {
         var val = statement.Value != null ? Evaluate(statement.Value) : null;
         throw new ReturnException(val);
     }
 
-    public object VisitBreak(Break expression)
+    public object VisitBreakStatement(Break expression)
     {
         throw new BreakException();
     }
 
-    public object VisitContinue(Continue expression)
+    public object VisitContinueStatement(Continue expression)
     {
         throw new ContinueException();
     }

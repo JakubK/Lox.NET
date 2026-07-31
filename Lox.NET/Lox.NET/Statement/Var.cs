@@ -10,5 +10,5 @@ public class Var(Token name, IExpression initializer) : IStatement
 {
 	public Token Name => name;
 	public IExpression Initializer => initializer;
-	public T Accept<T>(IStatementVisitor<T> visitor) => visitor.VisitVar(this);
+	public T Accept<T>(IStatementVisitor<T> visitor) => visitor.VisitVarStatement(this);
 }
