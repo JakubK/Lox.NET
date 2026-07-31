@@ -4,6 +4,7 @@ namespace Lox.NET;
 
 public class VariableEnvironment(VariableEnvironment? enclosing)
 {
+    public VariableEnvironment? Enclosing = enclosing;
     private readonly Dictionary<string, object?> _values = new();
 
     public VariableEnvironment() : this(null)
@@ -41,5 +42,26 @@ public class VariableEnvironment(VariableEnvironment? enclosing)
         }
         
         throw new LoxRuntimeException(name, $"Undefined variable '{name.Lexeme}'.");
+    }
+
+    private VariableEnvironment Ancestor(int distance)
+    {
+        var result = this;
+        for (int i = 0; i < distance; i++)
+        {
+            result = result.Enclosing;
+        }
+
+        return result;
+    }
+
+    public object? GetAt(int distance, string name)
+    {
+        return Ancestor(distance)._values[name];
+    }
+
+    public void AssignAt(int distance, Token name, object val)
+    {
+        Ancestor(distance)._values[name.Lexeme] = val;
     }
 }

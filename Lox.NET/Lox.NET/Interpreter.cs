@@ -9,6 +9,7 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
 {
     public readonly VariableEnvironment Globals = new();
     private VariableEnvironment _environment;
+    private readonly Dictionary<IExpression, int?> _locals = new();
 
     public Interpreter()
     {
@@ -59,7 +60,17 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
     public object? VisitAssign(Assign expression)
     {
         var val = Evaluate(expression.Right);
-        _environment.Assign(expression.Name, val);
+
+        var distance = _locals.GetValueOrDefault(expression);
+        if (distance != null)
+        {
+            _environment.AssignAt((int)distance, expression.Name, val);
+        }
+        else
+        {
+            Globals.Assign(expression.Name, val);
+        }
+        
         return val;
     }
 
@@ -193,6 +204,7 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
 
     public object? VisitVariable(Variable expression)
     {
+        return LookupVariable(expression.Name, expression);
         return _environment.Get(expression.Name);
     }
 
@@ -271,7 +283,7 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
 
     public object VisitFunction(Function statement)
     {
-        var func = new LoxFunction(statement);
+        var func = new LoxFunction(statement, _environment);
         _environment.Define(statement.Name.Lexeme, func);
         return null;
     }
@@ -357,5 +369,16 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
     public object VisitContinue(Continue expression)
     {
         throw new ContinueException();
+    }
+
+    public void Resolve(IExpression expression, int depth)
+    {
+        _locals[expression] = depth;
+    }
+    
+    private object? LookupVariable(Token name, Variable expression)
+    {
+        var distance = _locals.GetValueOrDefault(expression);
+        return distance != null ? _environment.GetAt((int)distance, name.Lexeme) : Globals.Get(name);
     }
 }
