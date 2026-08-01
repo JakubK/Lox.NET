@@ -8,7 +8,7 @@ namespace Lox.NET;
 public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object>
 {
     public readonly VariableEnvironment Globals = new();
-    private VariableEnvironment _environment;
+    private VariableEnvironment? _environment;
     private readonly Dictionary<IExpression, int?> _locals = new();
 
     public Interpreter()
@@ -190,6 +190,21 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return val;
     }
 
+    public object? VisitSuperExpression(Super expression)
+    {
+        var distance = _locals[expression]!.Value;
+        var superClass = (LoxClass)_environment.GetAt(distance, "super");
+        var obj = (LoxInstance)_environment.GetAt(distance - 1, "this");
+        var method = superClass.FindMethod(expression.Method.Lexeme);
+
+        if (method == null)
+        {
+            throw new LoxRuntimeException(expression.Method, "Undefined property " + expression.Method.Lexeme);
+        }
+        
+        return method.Bind(obj);
+    }
+
     public object VisitLiteralExpression(Literal expression)
     {
         return expression.Val;
@@ -312,8 +327,24 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
 
     public object VisitClassStatement(Class statement)
     {
+        object? superClass = null;
+        if (statement.SuperClass != null)
+        {
+            superClass = Evaluate(statement.SuperClass);
+            if (superClass is not LoxClass)
+            {
+                throw new LoxRuntimeException(null, "Superclass must be a class");
+            }
+        }
+        
         _environment.Define(statement.Name.Lexeme, null);
 
+        if (statement.SuperClass != null)
+        {
+            _environment = new VariableEnvironment(_environment);
+            _environment.Define("super", superClass);
+        }
+        
         var methods = new Dictionary<string, LoxFunction>();
         foreach (var method in statement.Methods)
         {
@@ -321,8 +352,15 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
             methods[method.Name.Lexeme] = function;
         }
         
-        var loxClass = new LoxClass(statement.Name.Lexeme, methods);
-        _environment.Assign(statement.Name, loxClass);
+        var loxClass = new LoxClass(statement.Name.Lexeme, (LoxClass?)superClass, methods);
+
+        if (superClass != null)
+        {
+            _environment = _environment.Enclosing;
+        }
+        
+        _environment?.Assign(statement.Name, loxClass);
+        
         return null;
     }
 

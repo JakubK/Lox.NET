@@ -13,6 +13,7 @@ public interface IExpressionVisitor<T>
 	T VisitCallExpression(Call expression);
 	T VisitGetExpression(Get expression);
 	T VisitSetExpression(Set expression);
+	T VisitSuperExpression(Super expression);
 	T VisitLiteralExpression(Literal expression);
 	T VisitLogicalExpression(Logical expression);
 	T VisitUnaryExpression(Unary expression);

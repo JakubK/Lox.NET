@@ -56,6 +56,11 @@ public class AstPrinter : IExpressionVisitor<string>
         return Parenthesize(expression.Op.Lexeme, expression.Right);
     }
 
+    public string VisitThisExpression(This expression)
+    {
+        throw new NotImplementedException();
+    }
+
     public string VisitVariableExpression(Variable expression)
     {
         throw new NotImplementedException();

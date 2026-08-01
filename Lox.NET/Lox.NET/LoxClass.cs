@@ -1,6 +1,6 @@
 namespace Lox.NET;
 
-public class LoxClass(string name, Dictionary<string, LoxFunction> methods) : ICallable
+public class LoxClass(string name, LoxClass? superClass, Dictionary<string, LoxFunction> methods) : ICallable
 {
     public string Name => name;
     
@@ -29,6 +29,17 @@ public class LoxClass(string name, Dictionary<string, LoxFunction> methods) : IC
 
     public LoxFunction? FindMethod(string nameLexeme)
     {
-        return methods.GetValueOrDefault(nameLexeme);
+        var method = methods.GetValueOrDefault(nameLexeme);
+        if (method != null)
+        {
+            return method;
+        }
+        
+        if (superClass != null)
+        {
+            return superClass.FindMethod(nameLexeme);
+        }
+
+        return null;
     }
 }

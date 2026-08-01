@@ -62,6 +62,19 @@ public class Resolver(Interpreter interpreter) : IExpressionVisitor<object>, ISt
         return null;
     }
 
+    public object VisitSuperExpression(Super expression)
+    {
+        if (currentClass == ClassType.None)
+        {
+            Lox.Error(expression.Keyword.Line, "Cant use super outside of a class");
+        } else if (currentClass != ClassType.SubClass)
+        {
+            Lox.Error(expression.Keyword.Line, "Cant use super in class without superclass");
+        }
+        ResolveLocal(expression, expression.Keyword);
+        return null;
+    }
+
     public object VisitLiteralExpression(Literal expression)
     {
         return null;
@@ -129,6 +142,20 @@ public class Resolver(Interpreter interpreter) : IExpressionVisitor<object>, ISt
         
         Declare(statement.Name);
         Define(statement.Name);
+
+        if (statement.SuperClass != null)
+        {
+            if (statement.Name.Lexeme.Equals(statement.SuperClass.Name.Lexeme))
+            {
+                Lox.Error(statement.Name.Line, "A class cant inherit from itself");
+            }
+
+            currentClass = ClassType.SubClass;
+            Resolve(statement.SuperClass);
+            
+            BeginScope();
+            _scopes.Peek()["super"] = true;
+        }
         
         BeginScope();
         _scopes.Peek()["this"] = true;
@@ -143,6 +170,12 @@ public class Resolver(Interpreter interpreter) : IExpressionVisitor<object>, ISt
             ResolveFunction(method, declaration);
         }
         EndScope();
+
+        if (statement.SuperClass != null)
+        {
+            EndScope();
+        }
+        
         currentClass = enclosingClass;
         return null;
     }

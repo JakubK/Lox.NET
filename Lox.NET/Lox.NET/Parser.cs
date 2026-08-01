@@ -65,6 +65,14 @@ public class Parser(List<Token> tokens)
     private IStatement ClassDeclaration()
     {
         var name = Consume(TokenType.Identifier, "Expect class name");
+
+        Variable? superClass = null;
+        if (Match(TokenType.Less))
+        {
+            Consume(TokenType.Identifier, "Expect superclass name");
+            superClass = new Variable(Previous);
+        }
+        
         Consume(TokenType.LeftBrace, "Expect '{' before class body");
 
         var methods = new List<Function>();
@@ -75,7 +83,7 @@ public class Parser(List<Token> tokens)
         
         Consume(TokenType.RightBrace, "Expect '}' after class body");
 
-        return new Class(name, methods);
+        return new Class(name, superClass, methods);
     }
 
     private Function FunctionDeclaration(string kind)
@@ -458,8 +466,15 @@ public class Parser(List<Token> tokens)
 
     private IExpression Primary()
     {
-        // this | NUMBER | STRING | LITERAL | "true" | "false" | "nil" | "(" expression ")"
+        // super | this | NUMBER | STRING | LITERAL | "true" | "false" | "nil" | "(" expression ")"
 
+        if (Match(TokenType.Super))
+        {
+            var keyword = Previous;
+            Consume(TokenType.Dot, "Expect '.' after 'super'");
+            var method = Consume(TokenType.Identifier, "Expect superclass method name");
+            return new Super(keyword, method);
+        }
         if (Match(TokenType.This)) return new This(Previous);
         
         if (Match(TokenType.Number, TokenType.String)) return new Literal(Previous.Literal);

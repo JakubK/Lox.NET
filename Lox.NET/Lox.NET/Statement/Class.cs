@@ -6,9 +6,10 @@ using Lox.NET.Expression;
 
 namespace Lox.NET.Statement;
 
-public class Class(Token name, List<Function> methods) : IStatement
+public class Class(Token name, Variable superClass, List<Function> methods) : IStatement
 {
 	public Token Name => name;
+	public Variable SuperClass => superClass;
 	public List<Function> Methods => methods;
 	public T Accept<T>(IStatementVisitor<T> visitor) => visitor.VisitClassStatement(this);
 }
