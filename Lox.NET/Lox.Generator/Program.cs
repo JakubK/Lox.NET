@@ -17,6 +17,7 @@ await Generator.DefineAstAsync(args[0], "Lox.NET.Expression","IExpression", [
     "Literal : Object val",
     "Logical : IExpression left, Token op, IExpression right",
     "Unary : Token op, IExpression right",
+    "This : Token keyword",
     "Variable : Token name"
 ], []);
 

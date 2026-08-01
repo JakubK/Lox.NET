@@ -16,6 +16,7 @@ public interface IExpressionVisitor<T>
 	T VisitLiteralExpression(Literal expression);
 	T VisitLogicalExpression(Logical expression);
 	T VisitUnaryExpression(Unary expression);
+	T VisitThisExpression(This expression);
 	T VisitVariableExpression(Variable expression);
 
 }

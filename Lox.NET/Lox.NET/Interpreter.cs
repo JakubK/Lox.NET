@@ -227,6 +227,11 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         }
     }
 
+    public object? VisitThisExpression(This expression)
+    {
+        return LookupVariable(expression.Keyword, expression);
+    }
+
     public object? VisitVariableExpression(Variable expression)
     {
         return LookupVariable(expression.Name, expression);
@@ -312,7 +317,7 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         var methods = new Dictionary<string, LoxFunction>();
         foreach (var method in statement.Methods)
         {
-            var function = new LoxFunction(method, _environment);
+            var function = new LoxFunction(method, _environment, method.Name.Lexeme.Equals("init"));
             methods[method.Name.Lexeme] = function;
         }
         
@@ -323,7 +328,7 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
 
     public object VisitFunctionStatement(Function statement)
     {
-        var func = new LoxFunction(statement, _environment);
+        var func = new LoxFunction(statement, _environment, false);
         _environment.Define(statement.Name.Lexeme, func);
         return null;
     }
@@ -416,7 +421,7 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         _locals[expression] = depth;
     }
     
-    private object? LookupVariable(Token name, Variable expression)
+    private object? LookupVariable(Token name, IExpression expression)
     {
         var distance = _locals.GetValueOrDefault(expression);
         return distance != null ? _environment.GetAt((int)distance, name.Lexeme) : Globals.Get(name);

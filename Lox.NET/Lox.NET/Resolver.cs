@@ -7,6 +7,7 @@ public class Resolver(Interpreter interpreter) : IExpressionVisitor<object>, ISt
 {
     private readonly Stack<Dictionary<string, bool>> _scopes = new();
     private FunctionType currentFunction = FunctionType.None;
+    private ClassType currentClass = ClassType.None;
     
     public object VisitTernaryExpression(Ternary expression)
     {
@@ -79,6 +80,17 @@ public class Resolver(Interpreter interpreter) : IExpressionVisitor<object>, ISt
         return null;
     }
 
+    public object VisitThisExpression(This expression)
+    {
+        if (currentClass == ClassType.None)
+        {
+            Lox.Error(expression.Keyword.Line, "Cant use this outside of a class");
+            return null;
+        }
+        ResolveLocal(expression, expression.Keyword);
+        return null;
+    }
+
     public object VisitVariableExpression(Variable expression)
     {
         if (_scopes.Count != 0)
@@ -112,15 +124,26 @@ public class Resolver(Interpreter interpreter) : IExpressionVisitor<object>, ISt
 
     public object VisitClassStatement(Class statement)
     {
+        var enclosingClass = currentClass;
+        currentClass = ClassType.Class;
+        
         Declare(statement.Name);
         Define(statement.Name);
+        
+        BeginScope();
+        _scopes.Peek()["this"] = true;
         
         foreach (var method in statement.Methods)
         {
             var declaration = FunctionType.Method;
+            if (method.Name.Lexeme == "init")
+            {
+                declaration = FunctionType.Initializer;
+            }
             ResolveFunction(method, declaration);
         }
-        
+        EndScope();
+        currentClass = enclosingClass;
         return null;
     }
 
@@ -183,6 +206,10 @@ public class Resolver(Interpreter interpreter) : IExpressionVisitor<object>, ISt
 
         if (statement.Value != null)
         {
+            if (currentFunction == FunctionType.Initializer)
+            {
+                Lox.Error(statement.Keyword.Line, "Cant return a value from an initializer");
+            }
             Resolve(statement.Value);
         }
 

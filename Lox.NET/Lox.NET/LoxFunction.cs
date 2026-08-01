@@ -3,7 +3,7 @@ using Lox.NET.Statement;
 
 namespace Lox.NET;
 
-public class LoxFunction(Function declaration, VariableEnvironment closure) : ICallable
+public class LoxFunction(Function declaration, VariableEnvironment closure, bool isInitializer) : ICallable
 {
     public int Arity() => declaration.Parameters.Count;
 
@@ -22,8 +22,12 @@ public class LoxFunction(Function declaration, VariableEnvironment closure) : IC
         }
         catch (ReturnException ex)
         {
+            if (isInitializer) return closure.GetAt(0, "this");
+            
             return ex.Value;
         }
+
+        if (isInitializer) return closure.GetAt(0, "this");
         
         return null;
     }
@@ -31,5 +35,13 @@ public class LoxFunction(Function declaration, VariableEnvironment closure) : IC
     public override string ToString()
     {
         return $"<fn {declaration.Name.Lexeme}>";
+    }
+
+    public LoxFunction Bind(LoxInstance instance)
+    {
+        var env = new VariableEnvironment(closure);
+        env.Define("this", instance);
+        
+        return new(declaration, env, isInitializer);
     }
 }

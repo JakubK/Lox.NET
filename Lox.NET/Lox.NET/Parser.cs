@@ -458,17 +458,13 @@ public class Parser(List<Token> tokens)
 
     private IExpression Primary()
     {
-        // NUMBER | STRING | LITERAL | "true" | "false" | "nil" | "(" expression ")"
-        
-        if (Match(TokenType.Number, TokenType.String))
-        {
-            return new Literal(Previous.Literal);
-        }
+        // this | NUMBER | STRING | LITERAL | "true" | "false" | "nil" | "(" expression ")"
 
-        if (Match(TokenType.Identifier))
-        {
-            return new Variable(Previous);
-        }
+        if (Match(TokenType.This)) return new This(Previous);
+        
+        if (Match(TokenType.Number, TokenType.String)) return new Literal(Previous.Literal);
+
+        if (Match(TokenType.Identifier)) return new Variable(Previous);
         
         if (Match(TokenType.False)) return new Literal(false);
         if (Match(TokenType.True)) return new Literal(true);
