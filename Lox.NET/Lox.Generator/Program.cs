@@ -12,6 +12,8 @@ await Generator.DefineAstAsync(args[0], "Lox.NET.Expression","IExpression", [
     "Binary : IExpression left, Token op, IExpression right",
     "Grouping : IExpression expression",
     "Call : IExpression callee, Token paren, List<IExpression> arguments",
+    "Get : IExpression obj, Token name",
+    "Set : IExpression obj, Token name, IExpression val",
     "Literal : Object val",
     "Logical : IExpression left, Token op, IExpression right",
     "Unary : Token op, IExpression right",
@@ -21,6 +23,7 @@ await Generator.DefineAstAsync(args[0], "Lox.NET.Expression","IExpression", [
 await Generator.DefineAstAsync(args[0], "Lox.NET.Statement","IStatement", [
     "Statement : IExpression expr",
     "Block : List<IStatement> statements",
+    "Class : Token name, List<Function> methods",
     "Function : Token name, List<Token> parameters, List<IStatement> body",
     "If : IExpression condition, IStatement thenBranch, IStatement elseBranch",
     "Print : IExpression expr",

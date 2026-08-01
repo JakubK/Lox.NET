@@ -165,6 +165,31 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
         return func.Call(this, arguments);
     }
 
+    public object? VisitGetExpression(Get expression)
+    {
+        var obj = Evaluate(expression.Obj);
+        if (obj is LoxInstance instance)
+        {
+            return instance.Get(expression.Name);
+        }
+
+        throw new LoxRuntimeException(expression.Name, "Only instances have properties");
+    }
+
+    public object? VisitSetExpression(Set expression)
+    {
+        var obj = Evaluate(expression.Obj);
+
+        if (obj is not LoxInstance instance)
+        {
+            throw new LoxRuntimeException(expression.Name, "Only instances have fields");
+        }
+
+        var val = Evaluate(expression.Val);
+        instance.Set(expression.Name, val);
+        return val;
+    }
+
     public object VisitLiteralExpression(Literal expression)
     {
         return expression.Val;
@@ -277,6 +302,22 @@ public class Interpreter : IExpressionVisitor<object?>, IStatementVisitor<object
     public object VisitBlockStatement(Block expression)
     {
         ExecuteBlock(expression.Statements, new VariableEnvironment(_environment));
+        return null;
+    }
+
+    public object VisitClassStatement(Class statement)
+    {
+        _environment.Define(statement.Name.Lexeme, null);
+
+        var methods = new Dictionary<string, LoxFunction>();
+        foreach (var method in statement.Methods)
+        {
+            var function = new LoxFunction(method, _environment);
+            methods[method.Name.Lexeme] = function;
+        }
+        
+        var loxClass = new LoxClass(statement.Name.Lexeme, methods);
+        _environment.Assign(statement.Name, loxClass);
         return null;
     }
 

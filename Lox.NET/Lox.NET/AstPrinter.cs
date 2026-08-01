@@ -30,6 +30,16 @@ public class AstPrinter : IExpressionVisitor<string>
         throw new NotImplementedException();
     }
 
+    public string VisitGetExpression(Get expression)
+    {
+        throw new NotImplementedException();
+    }
+
+    public string VisitSetExpression(Set expression)
+    {
+        throw new NotImplementedException();
+    }
+
     public string VisitLiteralExpression(Literal expression)
     {
         if (expression.Val == null) return "nil";

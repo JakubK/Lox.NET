@@ -48,6 +48,19 @@ public class Resolver(Interpreter interpreter) : IExpressionVisitor<object>, ISt
         return null;
     }
 
+    public object VisitGetExpression(Get expression)
+    {
+        Resolve(expression.Obj);
+        return null;
+    }
+
+    public object VisitSetExpression(Set expression)
+    {
+        Resolve(expression.Val);
+        Resolve(expression.Obj);
+        return null;
+    }
+
     public object VisitLiteralExpression(Literal expression)
     {
         return null;
@@ -94,6 +107,20 @@ public class Resolver(Interpreter interpreter) : IExpressionVisitor<object>, ISt
         BeginScope();
         Resolve(statement.Statements);
         EndScope();
+        return null;
+    }
+
+    public object VisitClassStatement(Class statement)
+    {
+        Declare(statement.Name);
+        Define(statement.Name);
+        
+        foreach (var method in statement.Methods)
+        {
+            var declaration = FunctionType.Method;
+            ResolveFunction(method, declaration);
+        }
+        
         return null;
     }
 
