@@ -40,6 +40,11 @@ public class AstPrinter : IExpressionVisitor<string>
         throw new NotImplementedException();
     }
 
+    public string VisitSuperExpression(Super expression)
+    {
+        throw new NotImplementedException();
+    }
+
     public string VisitLiteralExpression(Literal expression)
     {
         if (expression.Val == null) return "nil";
