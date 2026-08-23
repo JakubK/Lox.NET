@@ -1,14 +1,32 @@
 #pragma  once
 
 #include "chunk.h"
+#include "object.h"
+#include "table.h"
 
 #define STACK_MAX 256
+#define FRAMES_MAX 64
+#define STACK_MAX (FRAMES_MAX * UINT8_COUNT)
 
 typedef struct {
+    ObjClosure* closure;
+    ObjFunction* function;
+    uint8_t* ip;
+    Value* slots;
+} CallFrame;
+
+typedef struct {
+    CallFrame frames[FRAMES_MAX];
+    int frameCount;
+
     Chunk* chunk;
     uint8_t* ip;
     Value stack[STACK_MAX];
     Value* stackTop;
+    Table globals;
+    Table strings;
+    Obj* objects;
+    ObjUpValue* openUpValues;
 } VM;
 
 typedef enum {
@@ -23,3 +41,4 @@ InterpretResult interpret(const char* source);
 void push(Value value);
 Value pop();
 
+extern VM vm;
