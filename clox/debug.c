@@ -67,6 +67,10 @@ int disassembleInstruction(Chunk* chunk, int offset) {
             return byteInstruction("OP_GET_LOCAL", chunk, offset);
         case OP_SET_LOCAL:
             return byteInstruction("OP_SET_LOCAL", chunk, offset);
+        case OP_GET_PROPERTY:
+            return constantInformation("OP_GET_PROPERTY", chunk, offset);
+        case OP_SET_PROPERTY:
+            return constantInformation("OP_SET_PROPERTY", chunk, offset);
         case OP_DEFINE_GLOBAL:
             return simpleInstruction("OP_DEFINE_GLOBAL", offset);
         case OP_EQUAL:
@@ -97,6 +101,10 @@ int disassembleInstruction(Chunk* chunk, int offset) {
             return jumpInstruction("OP_JUMP_IF_FALSE", 1, chunk, offset);
         case OP_LOOP:
             return jumpInstruction("OP_LOOP", -1, chunk, offset);
+        case OP_CLASS:
+            return constantInformation("OP_CLASS", chunk, offset);
+        case OP_METHOD:
+            return constantInformation("OP_METHOD", chunk, offset);
         case OP_CALL:
             return byteInstruction("OP_CALL", chunk, offset);
         case OP_CLOSURE: {
